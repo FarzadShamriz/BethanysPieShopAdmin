@@ -8,5 +8,8 @@
         Task<int> AddPieAsync(Pie pie);
         Task<int> UpdatePieAsync(Pie pie);
         Task<int> DeletePieAsync(int id);
+
+        Task<int> GetAllPiesCountAsync();
+        Task<IEnumerable<Pie>> GetPiesPagedAsync(int? pageNumber, int pageSize);
     }
 }
