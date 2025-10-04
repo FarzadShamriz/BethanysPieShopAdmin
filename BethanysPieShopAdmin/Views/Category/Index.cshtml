@@ -1,12 +1,23 @@
-﻿
-@model CategoryListViewModel
+﻿@model CategoryListViewModel
 
 <h2>Categories</h2>
 <hr />
 
-@if (!Model.Categories.Any())
+@if (ViewData["Error Message"] != null || !Model.Categories.Any())
 {
-    <p>No results</p>
+    @if (ViewData["Error Message"] != null)
+    {
+        <script>
+            $(document).ready(function(){
+                toastr.error('@ViewData["Error Message"]');
+            });
+        </script>
+    }
+    else
+    {
+        <p>No results</p>
+    }
+
 }
 else
 {

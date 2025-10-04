@@ -25,11 +25,13 @@ namespace BethanysPieShopAdmin.Models.Repositories
 
         public IEnumerable<Category> GetAllCategories()
         {
+            //throw new Exception("Database is down!!!");
             return _bethanysPieShopDbContext.Categories.OrderBy(c => c.CategoryId);
         }
 
         public async Task<IEnumerable<Category>> GetAllCategoriesAsync()
         {
+            throw new Exception("Database is down!!!");
             return await _bethanysPieShopDbContext.Categories.OrderBy(c => c.CategoryId).ToListAsync();
         }
 

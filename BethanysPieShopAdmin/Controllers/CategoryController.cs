@@ -17,12 +17,21 @@ namespace BethanysPieShopAdmin.Controllers
 
         public async Task<IActionResult> Index()
         {
-            CategoryListViewModel model = new CategoryListViewModel
+            try
             {
-                Categories = (await _categoryRepository.GetAllCategoriesAsync()).ToList()
-            };
+                CategoryListViewModel model = new CategoryListViewModel
+                {
+                    Categories = (await _categoryRepository.GetAllCategoriesAsync()).ToList()
+                };
+                return View(model);
+            }
+            catch(Exception ex)
+            {
+                ViewData["Error Message"] = $"Error occured: {ex.Message}";
+            }
 
-            return View(model);
+
+            return View(new CategoryListViewModel());
         }
 
         public async Task<IActionResult> Details(int? id)
