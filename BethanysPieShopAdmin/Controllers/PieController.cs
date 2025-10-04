@@ -53,7 +53,9 @@ namespace BethanysPieShopAdmin.Controllers
                 var allCategories = await _categoryRepository.GetAllCategoriesAsync();
                 IEnumerable<SelectListItem> selectListItems = new SelectList(allCategories,
                     "CategoryId", "Name", null);
+
                 pieAddViewModel.Categories = selectListItems;
+
                 return View(pieAddViewModel);
             }
         }

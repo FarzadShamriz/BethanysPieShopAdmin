@@ -2,6 +2,8 @@
 
 <form asp-controller="Pie" asp-action="Add" method="post">
 
+    <div asp-validation-summary="All" class="text-danger"></div>
+
     <div class="mb-3">
         <label asp-for="Pie.Name" class="form-label"></label>
         <input asp-for="Pie.Name" class="form-control" />
