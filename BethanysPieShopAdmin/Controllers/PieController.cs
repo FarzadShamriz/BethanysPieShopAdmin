@@ -153,5 +153,21 @@ namespace BethanysPieShopAdmin.Controllers
             return View(new PaginatedList<Pie>(pies.ToList(),count,pageNumber.Value,pageSize));
         }
 
+        public async Task<IActionResult> IndexPagingSorting(string sortBy, int? pageNumber)
+        {
+            ViewData["CurrentSort"] = sortBy;
+
+            ViewData["IdSortParam"] = string.IsNullOrEmpty(sortBy) || sortBy == "id_desc" ? "id" : "id_desc";
+            ViewData["NameSortParam"] = string.IsNullOrEmpty(sortBy) || sortBy == "name_desc" ? "name" : "name_desc";
+            ViewData["PriceSortParam"] = string.IsNullOrEmpty(sortBy) || sortBy == "price_desc" ? "price" : "price_desc";
+
+            var pies = await _pieRepository.GetPiesSortedAndPagedAsync(sortBy, pageNumber, pageSize);
+            pageNumber ??= 1;
+
+            var count = await _pieRepository.GetAllPiesCountAsync();
+
+            return View(new PaginatedList<Pie>(pies.ToList(),count,pageNumber.Value,pageSize));
+        }
+
     }
 }
