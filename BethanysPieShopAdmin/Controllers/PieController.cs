@@ -4,6 +4,7 @@ using BethanysPieShopAdmin.Models.ViewModels;
 using BethanysPieShopAdmin.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.IdentityModel.Tokens;
 
 namespace BethanysPieShopAdmin.Controllers
 {
@@ -167,6 +168,39 @@ namespace BethanysPieShopAdmin.Controllers
             var count = await _pieRepository.GetAllPiesCountAsync();
 
             return View(new PaginatedList<Pie>(pies.ToList(),count,pageNumber.Value,pageSize));
+        }
+
+        public async Task<IActionResult> Search(PieSearchViewModel? modelInput)
+        {
+            var allCategories = await _categoryRepository.GetAllCategoriesAsync();
+            var model = new PieSearchViewModel();
+            IEnumerable<SelectListItem> selectListItems = new SelectList(allCategories,
+                "CategoryId", "Name", modelInput.SearchCategory);
+
+            if(!string.IsNullOrEmpty(modelInput.SearchQuery))
+            {
+                var pies = await _pieRepository.SearchPies(modelInput.SearchQuery, modelInput.SearchCategory);
+
+                model = new PieSearchViewModel()
+                {
+                    Categories = selectListItems,
+                    Pies = pies,
+                    SearchQuery = modelInput.SearchQuery,
+                    SearchCategory = modelInput.SearchCategory
+                };
+            }
+            else
+            {
+                model = new PieSearchViewModel()
+                {
+                    Categories = selectListItems,
+                    Pies = new List<Pie>(),
+                    SearchQuery = string.Empty,
+                    SearchCategory = null
+                };
+            }
+
+            return View(model);
         }
 
     }
