@@ -1,15 +1,19 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace BethanysPieShopAdmin.Models.Repositories
 {
     public class CategoryRepository : ICategoryRepository
     {
         private readonly BethanysPieShopDbContext _bethanysPieShopDbContext;
+        private IMemoryCache _memoryCache;
+        private const string AllCategoriesCacheName = "AllCategories";
 
-        public CategoryRepository(BethanysPieShopDbContext bethanysPieShopDbContext)
+        public CategoryRepository(BethanysPieShopDbContext bethanysPieShopDbContext, IMemoryCache memoryCache)
         {
             _bethanysPieShopDbContext = bethanysPieShopDbContext;
+            _memoryCache = memoryCache;
         }
 
         public async Task<int> AddCategoryAsync(Category category)
@@ -20,7 +24,12 @@ namespace BethanysPieShopAdmin.Models.Repositories
                 throw new Exception($"Category with name {category.Name} already exists.");
             }
             await _bethanysPieShopDbContext.Categories.AddAsync(category);
-            return await _bethanysPieShopDbContext.SaveChangesAsync();
+            
+            int result = await _bethanysPieShopDbContext.SaveChangesAsync();
+
+            _memoryCache.Remove(AllCategoriesCacheName);
+
+            return result;
         }
 
         public IEnumerable<Category> GetAllCategories()
@@ -31,8 +40,17 @@ namespace BethanysPieShopAdmin.Models.Repositories
 
         public async Task<IEnumerable<Category>> GetAllCategoriesAsync()
         {
-            //throw new Exception("Database is down!!!");
-            return await _bethanysPieShopDbContext.Categories.OrderBy(c => c.CategoryId).ToListAsync();
+            List<Category> allCategories = null;
+
+            if(!_memoryCache.TryGetValue(AllCategoriesCacheName, out allCategories)){
+                allCategories = await _bethanysPieShopDbContext.Categories.OrderBy(c => c.CategoryId).ToListAsync();
+
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(60));
+
+                _memoryCache.Set(AllCategoriesCacheName, allCategories, cacheEntryOptions);
+            }
+
+            return allCategories;
         }
 
         public async Task<Category?> GetCategoryByIdAsync(int id)
