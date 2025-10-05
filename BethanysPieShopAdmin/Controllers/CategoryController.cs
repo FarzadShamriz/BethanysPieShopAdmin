@@ -137,5 +137,42 @@ namespace BethanysPieShopAdmin.Controllers
 
         }
 
+        public async Task<IActionResult> BulkEdit()
+        {
+            List<CategoryBulkEditViewModel> categoryBulkEditViewModels = new List<CategoryBulkEditViewModel>();
+
+            var allCategories = await _categoryRepository.GetAllCategoriesAsync();
+            foreach(var category in allCategories)
+            {
+                categoryBulkEditViewModels.Add(new CategoryBulkEditViewModel
+                {
+                    CategoryId = category.CategoryId,
+                    Name = category.Name
+                });
+            }
+            return View(categoryBulkEditViewModels);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> BulkEdit(List<CategoryBulkEditViewModel> categoryBuldEditViewModels)
+        {
+            
+            List<Category> categories = new List<Category>();
+
+            foreach(var categoryVm in categoryBuldEditViewModels)
+            {
+                categories.Add(new Category
+                {
+                    CategoryId = categoryVm.CategoryId,
+                    Name = categoryVm.Name
+                });
+            }
+
+            await _categoryRepository.UpdateCategoryNamesAsync(categories);
+
+            return RedirectToAction(nameof(Index));
+
+        }
+
     }
 }
